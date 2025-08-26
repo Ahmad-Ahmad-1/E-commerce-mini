@@ -36,7 +36,7 @@ class CheckoutController extends Controller
         $cart->items()->delete();
 
         return response()->json([
-            'message' => 'Order created successfully.',
+            'message' => 'Order created successfully and checkout complete, awating payment.',
             'order_id' => $order->id,
             'total' => $order->total,
             'status' => $order->status,

@@ -45,6 +45,4 @@ class ProfileController extends Controller
             'message' => 'accound has been deleted successfully.',
         ]);
     }
-
-    
 }
