@@ -18,17 +18,17 @@ class HomeController extends Controller
         return view('Admin.index');
     }
     
-    public function home()
-    {
+    // public function home()
+    // {
 
-        $products = Product::simplePaginate(8);
+    //     $products = Product::simplePaginate(8);
 
-        return response()->json([
-            'products' => $products,
-        ]);
+    //     return response()->json([
+    //         'products' => $products,
+    //     ]);
 
-        // return view('home.index1',compact('products'));
-    }
+    //     // return view('home.index1',compact('products'));
+    // }
 
     public function login_home()
     {
@@ -42,11 +42,11 @@ class HomeController extends Controller
         ]);
     }
 
-    public function product_details($id)
-    {
-        $product = Product::find($id);
-        return view('home.product_details', compact('product'));
-    }
+    // public function product_details($id)
+    // {
+    //     $product = Product::find($id);
+    //     return view('home.product_details', compact('product'));
+    // }
     
     public function add_cart($id)
     {
@@ -67,6 +67,7 @@ class HomeController extends Controller
         $cart->save();
         return redirect()->back();
     }
+    
     public function get_invoice()
     {
         $user = Auth::User();
@@ -80,4 +81,5 @@ class HomeController extends Controller
         }
         return $total_invoice;
     }
+
 }

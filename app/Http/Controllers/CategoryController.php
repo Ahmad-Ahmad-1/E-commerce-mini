@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
@@ -11,7 +12,7 @@ class CategoryController extends Controller
     public function index()
     {
         return response()->json([
-            'categories' => Category::paginate(10),
+            'categories' => CategoryResource::collection(Category::paginate(10)),
         ]);
     }
 
@@ -24,7 +25,11 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function show(Category $category) {}
+    public function show(Category $category) {
+        return response()->json([
+            'category' => new CategoryResource($category)
+        ]);
+    }
 
     public function update(UpdateCategoryRequest $request, Category $category)
     {

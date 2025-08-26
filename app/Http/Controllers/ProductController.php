@@ -18,6 +18,13 @@ class ProductController extends Controller
         ]);
     }
 
+    public function latestProducts()
+    {
+        return response()->json([
+            'products' => Product::latestTenResource(),
+        ]);
+    }
+
     public function store(StoreProductRequest $request)
     {
         $product = new Product($request->safe()->except('image'));

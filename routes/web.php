@@ -5,13 +5,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminController;
 
-route::get('/',[HomeController::class,'home']);
+// route::get('/',[HomeController::class,'home']);
 
 Route::get('/dashboard',[HomeController::class,'login_home']
 )->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
@@ -32,3 +32,5 @@ route::get('product_search',[AdminController::class,'product_search']);
 route::get('product_details/{id}',[HomeController::class,'product_details']);
 route::get('add_cart/{id}',[HomeController::class,'add_cart'])->middleware(['auth','verified']);
 route::get('invoice',[HomeController::class,'get_invoice']);
+
+require_once 'auth.php';

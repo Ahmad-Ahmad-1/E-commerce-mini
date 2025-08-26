@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\ProductResource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\HasMedia;
@@ -19,5 +20,13 @@ class Product extends Model implements HasMedia
     public function chart()
     {
         return $this->hasMany(Cart::class);
+    }
+
+    public static function latestTen () {
+        return Product::latest()->limit(10)->get();
+    }
+
+    public static function latestTenResource () {
+        return ProductResource::collection(Product::latestTen());
     }
 }
