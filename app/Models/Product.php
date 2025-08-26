@@ -4,15 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-class Product extends Model
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+
+class Product extends Model implements HasMedia
 {
-    //
-    use HasFactory;
-protected $fillable=['title','description','image','category_id','price','quantity'];
-public function category(){
+
+    use HasFactory, InteractsWithMedia;
+    protected $fillable = ['title', 'description', 'price', 'quantity'];
+    public function category()
+    {
         return $this->belongsTo(Category::class);
     }
- public function chart(){
+    public function chart()
+    {
         return $this->hasMany(Cart::class);
     }
 }
