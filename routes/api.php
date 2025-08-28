@@ -2,14 +2,13 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\UserController;
 
 Route::controller(ProductController::class)->group(function () {
     Route::get('/', 'latestProducts');
@@ -32,28 +31,28 @@ Route::middleware('auth:sanctum')->group(function () {
             ->only(['store', 'update', 'destroy']);
     });
 
-    Route::post('/checkout', [CheckoutController::class, 'checkout']);
-
     Route::patch('/profile', [ProfileController::class, 'update']);
     Route::delete('/profile', [ProfileController::class, 'destroy']);
 
-    Route::get('/cart', [CartController::class, 'index']);
-    Route::post('/cart/add', [CartController::class, 'add']);
-    Route::patch('/cart/{item}', [CartController::class, 'updateQuantity']);
-    Route::delete('/cart/{item}', [CartController::class, 'remove']);
+    Route::controller(CartController::class)->group(function () {
+        Route::get('/cart', 'index');
+        Route::post('/cart/add', 'add');
+        Route::patch('/cart/{item}', 'updateQuantity');
+        Route::delete('/cart/{item}', 'remove');
+    });
 
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
-    Route::patch('/orders/{order}', [OrderController::class, 'cancel']);
-    Route::delete('/orders/{order}', [OrderController::class, 'destroy']);
+    Route::controller(OrderController::class)->group(function () {
+        Route::get('/orders', 'index');
+        Route::get('/orders/{order}', 'show');
+        Route::patch('/orders/{order}', 'cancel');
+        Route::delete('/orders/{order}', 'destroy');
+    });
 
-    Route::post('/orders/{order}/checkout', [PaymentController::class, 'checkout']);
-    Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
-    Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
-
-    // Webhook (for real confirmation)
-    // Route::post('/stripe/webhook', [\App\Http\Controllers\WebhookController::class, 'handle']);
+    Route::post('/checkout/create-session', [CheckoutController::class, 'createSession']);
+    Route::get('/checkout/success', [CheckoutController::class, 'success']);
 });
+
+Route::get('/success', [CheckoutController::class, 'success'])->name('success');
 
 Route::get('/user', function (Request $request) {
     return $request->user();
