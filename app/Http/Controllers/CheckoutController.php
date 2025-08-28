@@ -2,44 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
 use Illuminate\Http\Request;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 
 class CheckoutController extends Controller
 {
-    public function __invoke(Request $request)
+    public function checkout(Request $request)
     {
         $user = $request->user();
-
         $cart = $user->cart()->with('items.product')->first();
 
-        if (!$cart || $cart->items->isEmpty()) {
-            return response()->json(['message' => 'Cart is empty'], 400);
-        }
+        // Calculate total price
+        $amount = $cart->items->sum(fn($item) => $item->product->price * $item->quantity);
 
-        $total = $cart->items->sum(fn($item) => $item->product->price * $item->quantity);
+        Stripe::setApiKey(config('services.stripe.secret'));
 
-        $order = Order::create([
-            'user_id' => $user->id,
-            'total'   => $total,
-            'status'  => 'pending',
+        $paymentIntent = PaymentIntent::create([
+            'amount' => $amount * 100, // in cents
+            'currency' => 'usd',
+            'metadata' => [
+                'user_id' => $user->id,
+                'cart_id' => $cart->id,
+            ],
         ]);
 
-        foreach ($cart->items as $item) {
-            $order->items()->create([
-                'product_id' => $item->product_id,
-                'quantity'   => $item->quantity,
-                'price'      => $item->product->price,
-            ]);
-        }
-
-        $cart->items()->delete();
-
         return response()->json([
-            'message' => 'Order created successfully and checkout complete, awating payment.',
-            'order_id' => $order->id,
-            'total' => $order->total,
-            'status' => $order->status,
-        ], 201);
+            'client_secret' => $paymentIntent->client_secret,
+        ]);
     }
 }

@@ -92,9 +92,21 @@ class ProductController extends Controller
 
     public function search(Request $request)
     {
-        $search = $request->input('search');
+        $search = $request->query('search');
+
+        if (!$search) {
+            return response()->json([
+                'message' => 'Please provide a search term.',
+            ], 422);
+        }
 
         $products = Product::where('title', 'like', "%$search%")->paginate(10);
+
+        if ($products->isEmpty()) {
+            return response()->json([
+                'message' => 'There are no items that match your search.',
+            ]);
+        }
 
         return response()->json([
             'products' => ProductResource::collection($products),

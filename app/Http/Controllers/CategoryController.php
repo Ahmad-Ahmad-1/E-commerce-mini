@@ -27,7 +27,8 @@ class CategoryController extends Controller
 
     public function show(Category $category) {
         return response()->json([
-            'category' => new CategoryResource($category)
+            'category' => new CategoryResource($category),
+            'categoryProducts' => $category->latestTenProducts(),
         ]);
     }
 
@@ -40,9 +41,6 @@ class CategoryController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Category $category)
     {
         $category->delete();
