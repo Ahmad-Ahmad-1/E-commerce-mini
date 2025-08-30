@@ -13,20 +13,23 @@ class Product extends Model implements HasMedia
 
     use HasFactory, InteractsWithMedia;
     protected $fillable = ['title', 'description', 'price', 'quantity'];
-    public function category()
+
+    public function categories()
     {
-        return $this->belongsTo(Category::class);
-    }
-    public function chart()
-    {
-        return $this->hasMany(Cart::class);
+        return $this->belongsToMany(Category::class);
     }
 
-    public static function latestTen () {
-        return Product::latest()->limit(10)->get();
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
-    public static function latestTenResource () {
-        return ProductResource::collection(Product::latestTen());
+    public static function latestTenResource()
+    {
+        return ProductResource::collection(
+            Product::with(
+                'categories'
+            )->latest()->limit(10)->get()
+        );
     }
 }

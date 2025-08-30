@@ -26,7 +26,7 @@ return [
 
     'allowed_origins' => [
         // '*',
-        'http://localhost:3000', // Your SPA origin
+        'https://localhost:3000', // Your SPA origin
     ],
 
     'allowed_origins_patterns' => [],

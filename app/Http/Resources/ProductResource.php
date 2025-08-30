@@ -12,13 +12,14 @@ class ProductResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'userId' => $this->user_id,
             'title' => $this->title,
             'description' => $this->description,
-            'categoryName' => Category::firstWhere('id', '=', $this->category_id)->category_name,
             'price' => $this->price,
             'quantity' => $this->quantity,
             'lastModified' => date_format($this->updated_at, 'Y-m-d'),
             'image' => $this->getFirstMediaUrl('images'),
+            'categories' => CategoryResource::collection($this->categories)
         ];
     }
 }

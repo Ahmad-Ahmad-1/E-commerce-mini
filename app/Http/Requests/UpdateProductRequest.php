@@ -11,7 +11,8 @@ class UpdateProductRequest extends FormRequest
         return [
             'title' => ['required', 'between:2,25', 'string'],
             'description' => ['required', 'string', 'max:1000'],
-            'category_name' => ['required', 'string', 'between:2,25', 'exists:categories,category_name'],
+            'category_name' => ['required', 'array'],
+            'category_name.*' => ['required', 'string', 'between:2,25', 'exists:categories,category_name'],
             'price' => ['required'],
             'quantity' => ['required'],
             'image' => ['required', 'image']

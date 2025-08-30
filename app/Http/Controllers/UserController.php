@@ -3,11 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UpdateUserRolesRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 
 class UserController extends Controller
 {
+    public function index()
+    {
+        return response()->json([
+            'users' => UserResource::collection(User::latest()->paginate(10)),
+        ]);
+    }
+
+    public function show(User $user)
+    {
+        return response()->json([
+            'user' => new UserResource($user)
+        ]);
+    }
+
     public function update(User $user, UpdateUserRequest $request)
+    {
+        $user->update($request->validated());
+
+        return response()->json([
+            'message' => 'Your profile has been updated successfully.'
+        ]);
+    }
+
+    public function updateRoles(User $user, UpdateUserRolesRequest $request)
     {
         $user->syncRoles($request->validated('role'));
 

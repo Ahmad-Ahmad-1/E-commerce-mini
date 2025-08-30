@@ -8,8 +8,8 @@ use App\Http\Resources\CartItemResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -30,16 +30,23 @@ class CartController extends Controller
         $productId = $request->validated('product_id');
         $quantity  = $request->validated('quantity');
 
-        // Ensure the user has a cart
-        $cart = Cart::firstOrCreate(['user_id' => $request->user()->id]);
+        // Find the product
+        $product = Product::findOrFail($productId);
 
-        // Find existing cart item or create a new one
+        // Ensure enough stock
+        $cart = Cart::firstOrCreate(['user_id' => $request->user()->id]);
         $cartItem = $cart->items()->firstOrNew(['product_id' => $productId]);
+        $newQuantity = $cartItem->quantity + $quantity;
+
+        if ($newQuantity > $product->quantity) {
+            return response()->json([
+                'message' => 'Not enough stock available.',
+                'available_quantity' => $product->quantity - $cartItem->quantity,
+            ], 400);
+        }
 
         // Increment quantity
-        $cartItem->quantity += $quantity;
-
-        // Save the cart item
+        $cartItem->quantity = $newQuantity;
         $cartItem->save();
 
         // Load items with products
@@ -50,6 +57,7 @@ class CartController extends Controller
             'items' => CartItemResource::collection($cart->items),
         ]);
     }
+
 
     public function remove(Request $request, CartItem $item)
     {
@@ -68,8 +76,17 @@ class CartController extends Controller
 
     public function updateQuantity(UpdateCartItemQuantityRequest $request, CartItem $item)
     {
+        $quantity = $request->validated('quantity'); 
+        
+        if ($quantity > $item->product->quantity) {
+            return response()->json([
+                'message' => "Not enough stock available.",
+                'available_quantity' => $item->product->quantity,
+            ], 400);
+        }
+
         $item->update([
-            'quantity' => $request->validated('quantity'),
+            'quantity' => $quantity,
         ]);
 
         // Reload cart with items + products
