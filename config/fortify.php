@@ -73,7 +73,7 @@ return [
     |
     */
 
-    'home' => '/',
+    'home' => '/api/products',
 
     /*
     |--------------------------------------------------------------------------
@@ -145,10 +145,10 @@ return [
 
     'features' => [
         Features::registration(),
-        // Features::resetPasswords(),
-        // Features::emailVerification(),
+        Features::emailVerification(),
+        Features::updatePasswords(),
+        Features::resetPasswords(),
         // Features::updateProfileInformation(),
-        // Features::updatePasswords(),
         // Features::twoFactorAuthentication([
             // 'confirm' => true,
             // 'confirmPassword' => true,

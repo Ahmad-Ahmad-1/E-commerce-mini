@@ -15,5 +15,18 @@ class UserSeeder extends Seeder
             'password' => '12345678'
         ]);
         $user1->assignRole('Super Admin');
+
+        User::factory()->create([
+            'name' => 'regular user 1',
+            'email' => 'regularuser1@example.com',
+            'password' => '12345678'
+        ]);
+
+        User::factory()->create([
+            'name' => 'regular user 2',
+            'email' => 'regularuser2@example.com',
+            'password' => '12345678'
+        ]);
+        
     }
 }

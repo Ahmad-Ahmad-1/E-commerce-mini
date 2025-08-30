@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -41,6 +42,11 @@ class AppServiceProvider extends ServiceProvider
         // Model::automaticallyEagerLoadRelationships();
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;
+        });
+
+        ResetPassword::createUrlUsing(function ($notifiable, string $token) {
+            return 'https://localhost:3000/reset-password?token=' . $token .
+                '&email=' . urlencode($notifiable->getEmailForPasswordReset());
         });
     }
 }
