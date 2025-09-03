@@ -25,6 +25,12 @@ class UserController extends Controller
 
     public function update(User $user, UpdateUserRequest $request)
     {
+        if($user->hasRole('Super Admin')) {
+            return response()->json([
+                'message' => 'This user is a Super Admin, you can not update it.',
+            ]);
+        }
+
         $user->update($request->validated());
 
         return response()->json([

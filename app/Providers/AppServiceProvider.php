@@ -6,8 +6,9 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Fortify\Contracts\LoginResponse;
-use Laravel\Fortify\Contracts\RegisterResponse;
+// use Laravel\Fortify\Contracts\LoginResponse;
+// use Laravel\Fortify\Contracts\RegisterResponse;
+use Laravel\Fortify\Contracts\VerifyEmailResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,11 +40,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::preventLazyLoading();
-        // Model::automaticallyEagerLoadRelationships();
+        Model::automaticallyEagerLoadRelationships();
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;
         });
-
+        
+        $this->app->instance(VerifyEmailResponse::class, new class implements VerifyEmailResponse {
+            public function toResponse($request)
+            {
+                return redirect('https://localhost:3000/verify-success');
+            }
+        });
         ResetPassword::createUrlUsing(function ($notifiable, string $token) {
             return 'https://localhost:3000/reset-password?token=' . $token .
                 '&email=' . urlencode($notifiable->getEmailForPasswordReset());

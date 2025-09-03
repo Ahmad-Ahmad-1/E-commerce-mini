@@ -58,7 +58,6 @@ class CartController extends Controller
         ]);
     }
 
-
     public function remove(Request $request, CartItem $item)
     {
         $item->delete();
