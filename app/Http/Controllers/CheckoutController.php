@@ -39,7 +39,7 @@ class CheckoutController extends Controller
         $paymentIntent = PaymentIntent::create([
             'amount' => $amount * 100, // in cents
             'currency' => 'usd',
-            'payment_method_types' => ['card'], // 👈 restrict to card only
+            'payment_method_types' => ['card'], // restrict to card only
             'metadata' => [
                 'order_id' => $order->id,
             ],

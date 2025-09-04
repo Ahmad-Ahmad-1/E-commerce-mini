@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\StripeWebhookController;
 
 Route::apiResource('/categories', CategoryController::class)
     ->only(['index', 'show']);
@@ -45,9 +46,14 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 
     Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'createPaymentIntent']);
+    
     // Confirm payment after Stripe.js finishes
-    Route::post('/payment/confirm', [PaymentController::class, 'confirm']);
+    // Route::post('/payment/confirm', [PaymentController::class, 'confirm']);
+
 });
+
+// Stripe calls the webhook, not SPA
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 
 Route::controller(ProductController::class)->group(function () {
     Route::get('/', 'latestProducts');
