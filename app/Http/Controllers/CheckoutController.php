@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class CheckoutController extends Controller
 {
+    /*
+        Copy cart items → create a pending order.
+        Do not clear the cart yet.
+        Create a Stripe PaymentIntent tied to that order.
+    */
     public function createPaymentIntent(Request $request)
     {
         $cart = $request->user()->cart()->with('items.product')->firstOrFail();

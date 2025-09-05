@@ -34,7 +34,7 @@ class OrderController extends Controller
 
     public function cancel(Order $order)
     {
-        if ($order->status !== OrderStatus::Pending) {
+        if ($order->status !== OrderStatus::Pending->value) {
             return response()->json(['message' => 'You can only cancel pending orders.'], 400);
         }
 
@@ -60,55 +60,55 @@ class OrderController extends Controller
         ]);
     }
 
-    public function buyAgain(Order $order, Request $request)
-    {
-        $user = $request->user();
+    // public function buyAgain(Order $order, Request $request)
+    // {
+    //     $user = $request->user();
 
-        $addedItems = [];
-        $skippedProducts = [];
+    //     $addedItems = [];
+    //     $skippedProducts = [];
 
-        // Iterate through order items
-        foreach ($order->items as $item) { // <-- use items() relation
-            $product = $item->product;
+    //     // Iterate through order items
+    //     foreach ($order->items as $item) { // <-- use items() relation
+    //         $product = $item->product;
 
-            if ($product) {
-                $addedItems[] = [
-                    'product_id' => $product->id,
-                    'quantity'   => $item->quantity,
-                    'price'      => $item->price,
-                ];
-            } else {
-                $skippedProducts[] = $product ? $product->name : "Product #{$item->product_id}";
-            }
-        }
+    //         if ($product) {
+    //             $addedItems[] = [
+    //                 'product_id' => $product->id,
+    //                 'quantity'   => $item->quantity,
+    //                 'price'      => $item->price,
+    //             ];
+    //         } else {
+    //             $skippedProducts[] = $product ? $product->name : "Product #{$item->product_id}";
+    //         }
+    //     }
 
-        if (empty($addedItems)) {
-            return response()->json([
-                'message' => 'No products from this order are available to buy again.',
-                'skipped' => $skippedProducts,
-            ], 400);
-        }
+    //     if (empty($addedItems)) {
+    //         return response()->json([
+    //             'message' => 'No products from this order are available to buy again.',
+    //             'skipped' => $skippedProducts,
+    //         ], 400);
+    //     }
 
-        // Create new order
-        $newOrder = $user->orders()->create([
-            'status' => 'pending',
-            'total'  => collect($addedItems)->sum(fn($i) => $i['price'] * $i['quantity']),
-        ]);
+    //     // Create new order
+    //     $newOrder = $user->orders()->create([
+    //         'status' => 'pending',
+    //         'total'  => collect($addedItems)->sum(fn($i) => $i['price'] * $i['quantity']),
+    //     ]);
 
-        // Attach items to new order
-        foreach ($addedItems as $item) {
-            $newOrder->items()->create([
-                'product_id' => $item['product_id'],
-                'quantity'   => $item['quantity'],
-                'price'      => $item['price'],
-            ]);
-        }
+    //     // Attach items to new order
+    //     foreach ($addedItems as $item) {
+    //         $newOrder->items()->create([
+    //             'product_id' => $item['product_id'],
+    //             'quantity'   => $item['quantity'],
+    //             'price'      => $item['price'],
+    //         ]);
+    //     }
 
-        return response()->json([
-            'message'          => 'Order created successfully.',
-            'order_id'         => $newOrder->id,
-            'added_products'   => array_column($addedItems, 'product_id'),
-            'skipped_products' => $skippedProducts,
-        ]);
-    }
+    //     return response()->json([
+    //         'message'          => 'Order created successfully.',
+    //         'orderId'         => $newOrder->id,
+    //         'addedProducts'   => array_column($addedItems, 'product_id'),
+    //         'skippedProducts' => $skippedProducts,
+    //     ]);
+    // }
 }

@@ -26,8 +26,8 @@ class StripeWebhookController extends Controller
         $order = $orderId ? Order::with('items.product', 'user.cart.items')->find($orderId) : null;
 
         if ($event->type === 'payment_intent.succeeded') {
-            if ($order && $order->status !== 'paid') {
-                $order->update(['status' => 'paid']);
+            if ($order && $order->status !== OrderStatus::Paid->value) {
+                $order->update(['status' => OrderStatus::Paid->value]);
 
                 foreach ($order->items as $item) {
                     $item->product?->decrement('quantity', $item->quantity);
@@ -36,8 +36,8 @@ class StripeWebhookController extends Controller
                 $order->user->cart?->items()->delete();
             }
         } elseif ($event->type === 'payment_intent.canceled') {
-            if ($order && $order->status !== OrderStatus::Cancelled) {
-                $order->update(['status' => OrderStatus::Cancelled]);
+            if ($order && $order->status === OrderStatus::CancellationPending->value) {
+                $order->update(['status' => OrderStatus::Cancelled->value]);
             }
         }
 

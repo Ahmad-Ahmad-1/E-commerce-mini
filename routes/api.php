@@ -30,7 +30,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [UserController::class, 'destroy']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::controller(CartController::class)->group(function () {
         Route::get('/cart', 'index');
@@ -43,7 +43,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/orders/my-orders', 'myOrders');
         Route::get('/orders/{order}', 'show');
         Route::patch('/orders/{order}', 'cancel');
-        Route::post('/orders/{order}/buy-again', 'buyAgain');
+        // Route::post('/orders/{order}/buy-again', 'buyAgain');
     });
 
     Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'createPaymentIntent']);

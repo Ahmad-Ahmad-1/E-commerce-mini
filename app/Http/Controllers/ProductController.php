@@ -39,7 +39,7 @@ class ProductController extends Controller
         $product = new Product($request->safe()->except('image'));
 
         $product->user()->associate($request->user());
-        
+
         $product->save();
 
         $categoryNames = $request->input('category_name');
@@ -47,7 +47,7 @@ class ProductController extends Controller
         $product->categories()->sync($categories);
 
         $product->addMediaFromRequest('image')
-            ->withResponsiveImages()
+            ->usingFileName(uniqid() . '.' . request()->file('image')->extension())
             ->toMediaCollection('images');
 
         return response()->json([
