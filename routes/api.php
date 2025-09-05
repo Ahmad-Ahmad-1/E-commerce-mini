@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -8,7 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\PaymentController;
+// use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StripeWebhookController;
 
 Route::apiResource('/categories', CategoryController::class)
@@ -19,7 +20,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::middleware('role:Super Admin')->group(function () {
         Route::get('/orders', [OrderController::class, 'index']);
         Route::get('/users', [UserController::class, 'index']);
-        Route::delete('/users/{user}', [UserController::class, 'destroy']);
         Route::patch('/users/update-role/{user}', [UserController::class, 'updateRoles']);
         Route::apiResource('/categories', CategoryController::class)
             ->only(['store', 'update', 'destroy']);
@@ -28,8 +28,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/products/my-products', [ProductController::class, 'myProducts']);
     });
 
-    Route::patch('/users/{user}', [UserController::class, 'update']);
-    Route::get('/users/{user}', [UserController::class, 'show']);
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
     Route::controller(CartController::class)->group(function () {
         Route::get('/cart', 'index');
@@ -46,10 +47,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 
     Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'createPaymentIntent']);
-    
+
     // Confirm payment after Stripe.js finishes
     // Route::post('/payment/confirm', [PaymentController::class, 'confirm']);
-
 });
 
 // Stripe calls the webhook, not SPA
@@ -64,5 +64,5 @@ Route::controller(ProductController::class)->group(function () {
 });
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    return new UserResource($request->user());
 })->middleware('auth:sanctum');

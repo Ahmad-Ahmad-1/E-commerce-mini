@@ -3,6 +3,7 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -12,14 +13,9 @@ class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules;
 
-    /**
-     * Validate and create a newly registered user.
-     *
-     * @param  array<string, string>  $input
-     */
     public function create(array $input): User
     {
-        Validator::make($input, [
+        $validated = Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -29,12 +25,22 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
+            'bio' => ['nullable', 'string', 'max:1000'],
+            'phone' => ['nullable', 'string', 'max:20', 'unique:users,phone'],
+            'country' => ['nullable', 'string', 'between:3,20'],
+            'city' => ['nullable', 'string', 'between:3,20'],
+            'image' => ['nullable', 'image']
         ])->validate();
 
-        return User::create([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'password' => Hash::make($input['password']),
-        ]);
+        $user = User::create($validated);
+
+        if (isset($input['image'])) {
+            $file = $input['image'];
+            $user->addMedia($file)
+                ->usingFileName(uniqid('user_' . $user->id . '_') . '.' . $file->getClientOriginalExtension())
+                ->toMediaCollection('profilePicture');
+        }
+
+        return $user;
     }
 }

@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class UserListResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -13,13 +13,8 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'bio' => $this->bio,
             'role' => $this->getRoleNames(),
-            'phone' => $this->phone,
-            'country' => $this->country,
-            'city' => $this->city,
             'image' => $this->getFirstMediaUrl('profilePicture'),
-            'latestProducts' => ProductResource::collection($this->products()->latest()->paginate(10)),
         ];
     }
 }

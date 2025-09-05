@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Stripe\Stripe;
 use App\Models\Order;
 use App\Enums\OrderStatus;
 use App\Http\Resources\OrderResource;
-use App\Models\Cart;
 use Illuminate\Http\Request;
+use Stripe\PaymentIntent;
 
 class OrderController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         return response()->json([
             'orders' => OrderResource::collection(Order::latest()->paginate(10)),
         ]);
@@ -32,9 +34,30 @@ class OrderController extends Controller
 
     public function cancel(Order $order)
     {
-        $order->update(['status' => OrderStatus::Cancelled]);
+        if ($order->status !== OrderStatus::Pending) {
+            return response()->json(['message' => 'You can only cancel pending orders.'], 400);
+        }
 
-        return response()->json(new OrderResource($order));
+        try {
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            // Retrieve and cancel the PaymentIntent
+            $paymentIntent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
+            $paymentIntent->cancel();
+
+            // Mark order as cancellation pending (final state comes via webhook)
+            $order->update(['status' => OrderStatus::CancellationPending]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Stripe cancellation failed. Please try again.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Your order should be cancelled soon.',
+            'order' => new OrderResource($order)
+        ]);
     }
 
     public function buyAgain(Order $order, Request $request)

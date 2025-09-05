@@ -45,6 +45,10 @@ class CheckoutController extends Controller
             ],
         ]);
 
+        $order->update([
+            'stripe_payment_intent_id' => $paymentIntent->id,
+        ]);
+
         return response()->json([
             'clientSecret' => $paymentIntent->client_secret,
             'orderId' => $order->id,
