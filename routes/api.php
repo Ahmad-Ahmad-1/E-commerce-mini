@@ -54,7 +54,6 @@ Route::controller(ProductController::class)->group(function () {
     Route::get('/products', 'index');
     Route::get('/products/search', 'search');
     Route::get('/products/{product}', 'show');
-    // Route::post('/posts/{post}/like', [LikeController::class, 'toggle']);
 });
 
 Route::get('/user', function (Request $request) {

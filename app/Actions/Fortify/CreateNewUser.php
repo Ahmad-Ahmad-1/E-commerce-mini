@@ -25,11 +25,6 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
-            'bio' => ['nullable', 'string', 'max:1000'],
-            'phone' => ['nullable', 'string', 'max:20', 'unique:users,phone'],
-            'country' => ['nullable', 'string', 'between:3,20'],
-            'city' => ['nullable', 'string', 'between:3,20'],
-            'image' => ['nullable', 'image']
         ])->validate();
 
         $user = User::create($validated);

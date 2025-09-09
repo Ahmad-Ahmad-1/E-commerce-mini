@@ -16,18 +16,12 @@ class OrderController extends Controller
 {
     public function index()
     {
-        return response()->json([
-            'orders' => OrderListResource::collection(Order::latest()->paginate(10)),
-        ]);
+        return OrderListResource::collection(Order::latest()->paginate(10));
     }
 
     public function myOrders(Request $request)
     {
-        return response()->json([
-            'orders' => OrderListResource::collection(
-                $request->user()->orders()->latest()->paginate(10)
-            )
-        ]);
+        return OrderListResource::collection($request->user()->orders()->latest()->paginate(10));
     }
 
     public function show(Order $order)

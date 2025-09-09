@@ -6,6 +6,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\ProductListResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
@@ -13,9 +14,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return response()->json([
-            'products' => Product::latestTenResource(),
-        ]);
+        return ProductListResource::collection(Product::latest()->paginate(10));
     }
 
     public function latestProducts()
@@ -27,11 +26,8 @@ class ProductController extends Controller
 
     public function myProducts()
     {
-        return response()->json([
-            'products' => ProductResource::collection(
-                request()->user()->products()->with('categories')->latest()->paginate(10)
-            )
-        ]);
+        return ProductListResource::collection(request()->user()
+            ->products()->with('categories')->latest()->paginate(10));
     }
 
     public function store(StoreProductRequest $request)
@@ -107,8 +103,6 @@ class ProductController extends Controller
             ]);
         }
 
-        return response()->json([
-            'products' => ProductResource::collection($products),
-        ]);
+        return ProductListResource::collection($products);
     }
 }

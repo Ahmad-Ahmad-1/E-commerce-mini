@@ -12,9 +12,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        return response()->json([
-            'users' => UserListResource::collection(User::latest()->paginate(10)),
-        ]);
+        return UserListResource::collection(User::latest()->paginate(10));
     }
 
     public function show(User $user)
@@ -26,19 +24,20 @@ class UserController extends Controller
 
     public function update(User $user, UpdateUserRequest $request)
     {
-        if ($user->hasRole('Super Admin') && $user->id != auth()->id()) {
+        if ($user->id != auth()->id()) {
             return response()->json([
-                'message' => 'This user is a Super Admin, you can not modify it.',
+                'message' => "You can't modify other users.",
             ]);
         }
 
         $user->update($request->validated());
 
         $user->clearMediaCollection('profilePicture');
-        
+
         if ($request->hasFile('image')) {
             $user->addMediaFromRequest('image')
-                ->usingFileName(uniqid('user_' . $user->id . '_') . '.' . $request->file('image')->extension())
+                ->usingFileName(uniqid('user_' . $user->id . '_') .
+                    '.' . $request->file('image')->extension())
                 ->toMediaCollection('profilePicture');
         }
 
