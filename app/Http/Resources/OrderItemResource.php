@@ -11,9 +11,10 @@ class OrderItemResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'product' => new ProductResource($this->product),
             'quantity' => $this->quantity,
-            'price' => $this->price,
+            'unitPrice' => $this->price,
+            'totalPrice' => $this->quantity * $this->price,
+            'product' => new ProductForOrderItemResource($this->product),
         ];
     }
 }

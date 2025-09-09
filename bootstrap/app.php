@@ -25,21 +25,22 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (NotFoundHttpException $e) {
             if ($e->getPrevious() instanceof ModelNotFoundException) {
+                $class = class_basename($e->getPrevious()->getModel());
+                $ids = implode(',', $e->getPrevious()->getIds());
                 return response()->json(
-                    ["message" => "The resource you requested does not exist."],
+                    ["message" => "The resource you requested: [$class][$ids] does not exist."],
                     404
                 );
             }
             return response()->json(["message" => "The URL you requested does not exist."], 404);
         });
         $exceptions->render(function (HttpException $e) {
-            // because CSRF returns 419 page expired.
             if ($e->getStatusCode() === 419) {
                 return response()->json(
                     [
-                        'message' => 
-                "CSRF Token Mismatch.
-                Make sure you are getting the CSRF cookie from /sanctum/csrf-cookie and sending it in request's X-XSRF-TOKEN header"],
+                        'message' =>
+                        "CSRF Token Mismatch. Make sure you are getting the CSRF cookie from /sanctum/csrf-cookie and sending it in request's X-XSRF-TOKEN header"
+                    ],
                     419
                 );
             }

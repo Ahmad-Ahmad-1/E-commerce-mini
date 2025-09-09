@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Stripe\Stripe;
 use App\Models\Order;
 use App\Enums\OrderStatus;
+use App\Http\Resources\OrderListResource;
 use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
 use Stripe\PaymentIntent;
@@ -14,14 +15,14 @@ class OrderController extends Controller
     public function index()
     {
         return response()->json([
-            'orders' => OrderResource::collection(Order::latest()->paginate(10)),
+            'orders' => OrderListResource::collection(Order::latest()->paginate(10)),
         ]);
     }
 
     public function myOrders(Request $request)
     {
         return response()->json([
-            'orders' => OrderResource::collection(
+            'orders' => OrderListResource::collection(
                 $request->user()->orders()->latest()->paginate(10)
             )
         ]);

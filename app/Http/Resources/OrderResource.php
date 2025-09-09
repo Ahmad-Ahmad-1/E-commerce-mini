@@ -14,8 +14,9 @@ class OrderResource extends JsonResource
             'userId' => $this->user_id,
             'totalPrice' => $this->total,
             'status' => $this->status,
-            'items' => OrderItemResource::collection($this->items),
             'createdAt' => date_format($this->created_at, 'Y-m-d'),
+            'stripePaymentIntentId' => $this->stripe_payment_intent_id,
+            'items' => OrderItemResource::collection($this->items),
         ];
     }
 }
