@@ -15,6 +15,7 @@
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
+        "mailersend/laravel-driver": "^2.11",
         "php-flasher/flasher-toastr-laravel": "^2.1",
         "php-flasher/flasher-toastr-symfony": "^2.1",
         "resend/resend-laravel": "^0.21.0",

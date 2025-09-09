@@ -15,7 +15,7 @@ class UpdateProductRequest extends FormRequest
             'category_name.*' => ['required', 'string', 'between:2,25', 'exists:categories,category_name'],
             'price' => ['required'],
             'quantity' => ['required'],
-            'image' => ['required', 'image']
+            'image' => ['required', 'image'],
         ];
     }
 }

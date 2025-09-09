@@ -12,6 +12,7 @@ class Product extends Model implements HasMedia
 {
 
     use HasFactory, InteractsWithMedia;
+
     protected $fillable = ['title', 'description', 'price', 'quantity'];
 
     public function user()
@@ -24,10 +25,7 @@ class Product extends Model implements HasMedia
         return $this->belongsToMany(Category::class);
     }
 
-    public function likes()
-    {
-        return $this->hasMany(Like::class);
-    }
+    public function likes() {}
 
     public function comments()
     {

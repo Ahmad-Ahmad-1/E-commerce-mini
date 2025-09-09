@@ -2,18 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
 use Illuminate\Http\Request;
+use App\Services\CheckoutService;
 
 class CheckoutController extends Controller
 {
-    /*
-        Copy cart items → create a pending order.
-        Do not clear the cart yet.
-        Create a Stripe PaymentIntent tied to that order.
-    */
-    public function createPaymentIntent(Request $request)
+    public function createPaymentIntent(Request $request, CheckoutService $checkout)
     {
         $cart = $request->user()->cart()->with('items.product')->firstOrFail();
 
@@ -21,42 +15,8 @@ class CheckoutController extends Controller
             return response()->json(['message' => 'Cart is empty'], 400);
         }
 
-        $amount = $cart->items->sum(fn($item) => $item->product->price * $item->quantity);
-
-        // Create pending order
-        $order = $request->user()->orders()->create([
-            'status' => 'pending',
-            'total' => $amount,
-        ]);
-
-        foreach ($cart->items as $cartItem) {
-            $order->items()->create([
-                'product_id' => $cartItem->product_id,
-                'quantity'   => $cartItem->quantity,
-                'price'      => $cartItem->product->price,
-            ]);
-        }
-
-        // Set Stripe secret key
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        // Create PaymentIntent with only card payments
-        $paymentIntent = PaymentIntent::create([
-            'amount' => $amount * 100, // in cents
-            'currency' => 'usd',
-            'payment_method_types' => ['card'], // restrict to card only
-            'metadata' => [
-                'order_id' => $order->id,
-            ],
-        ]);
-
-        $order->update([
-            'stripe_payment_intent_id' => $paymentIntent->id,
-        ]);
-
-        return response()->json([
-            'clientSecret' => $paymentIntent->client_secret,
-            'orderId' => $order->id,
-        ]);
+        return response()->json(
+            $checkout->createPaymentIntent($cart, $request->user())
+        );
     }
 }

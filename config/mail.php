@@ -53,6 +53,10 @@ return [
             'transport' => 'resend',
         ],
 
+        'mailersend' => [
+            'transport' => 'mailersend',
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],
@@ -63,10 +67,6 @@ return [
             // 'client' => [
             //     'timeout' => 5,
             // ],
-        ],
-
-        'resend' => [
-            'transport' => 'resend',
         ],
 
         'sendmail' => [

@@ -15,7 +15,7 @@ use App\Http\Controllers\StripeWebhookController;
 Route::apiResource('/categories', CategoryController::class)
     ->only(['index', 'show']);
 
-Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::middleware('role:Super Admin')->group(function () {
         Route::get('/orders', [OrderController::class, 'index']);
@@ -52,7 +52,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Route::post('/payment/confirm', [PaymentController::class, 'confirm']);
 });
 
-// Stripe calls the webhook, not SPA
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 
 Route::controller(ProductController::class)->group(function () {

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddCartItemRequest;
 use App\Http\Requests\UpdateCartItemQuantityRequest;
 use App\Http\Resources\CartItemResource;
-use App\Http\Resources\ProductResource;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;

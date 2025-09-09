@@ -22,8 +22,10 @@ class StripeWebhookController extends Controller
         }
 
         $paymentIntent = $event->data->object;
-        $orderId = $paymentIntent->metadata->order_id ?? null;
-        $order = $orderId ? Order::with('items.product', 'user.cart.items')->find($orderId) : null;
+        $stripePaymentIntentId = $paymentIntent->id;
+        $order = Order::with('items.product', 'user.cart.items')
+            ->where('stripe_payment_intent_id', $stripePaymentIntentId)
+            ->first();
 
         if ($event->type === 'payment_intent.succeeded') {
             if ($order && $order->status !== OrderStatus::Paid->value) {
@@ -40,7 +42,5 @@ class StripeWebhookController extends Controller
                 $order->update(['status' => OrderStatus::Cancelled->value]);
             }
         }
-
-        // return response()->json(['received' => true]);
     }
 }
