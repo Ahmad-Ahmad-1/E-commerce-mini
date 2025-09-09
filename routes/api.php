@@ -7,9 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CategoryController;
-// use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StripeWebhookController;
 
 Route::apiResource('/categories', CategoryController::class)
@@ -43,13 +41,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/orders/my-orders', 'myOrders');
         Route::get('/orders/{order}', 'show');
         Route::patch('/orders/{order}', 'cancel');
+        Route::post('/orders',  'store');
+        Route::get('/orders/{order}/client-secret',  'clientSecret');
         // Route::post('/orders/{order}/buy-again', 'buyAgain');
     });
-
-    Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'createPaymentIntent']);
-
-    // Confirm payment after Stripe.js finishes
-    // Route::post('/payment/confirm', [PaymentController::class, 'confirm']);
 });
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);

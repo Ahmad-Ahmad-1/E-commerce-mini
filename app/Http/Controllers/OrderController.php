@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Stripe\Stripe;
 use App\Models\Order;
 use App\Enums\OrderStatus;
 use App\Http\Resources\OrderListResource;
 use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Stripe\PaymentIntent;
 
 class OrderController extends Controller
@@ -33,6 +35,68 @@ class OrderController extends Controller
         return response()->json(new OrderResource($order));
     }
 
+    public function store(Request $request)
+    {
+        $cart = $request->user()->cart()->with('items.product')->firstOrFail();
+
+        if ($cart->items->isEmpty()) {
+            return response()->json(['message' => 'Cart is empty'], 400);
+        }
+
+        $amount = $cart->items->sum(fn($item) => $item->product->price * $item->quantity);
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $paymentIntent = PaymentIntent::create([
+            'amount'   => $amount * 100, // cents
+            'currency' => 'usd',
+            'payment_method_types' => ['card'],
+        ]);
+
+        DB::transaction(function () use ($cart, $request, $paymentIntent, $amount) {
+            $order = $request->user()->orders()->create([
+                'status' => 'pending',
+                'total'  => $amount,
+                'stripe_payment_intent_id' => $paymentIntent->id,
+            ]);
+
+            foreach ($cart->items as $cartItem) {
+                $order->items()->create([
+                    'product_id' => $cartItem->product_id,
+                    'quantity'   => $cartItem->quantity,
+                    'price'      => $cartItem->product->price,
+                ]);
+            }
+        });
+
+        return response()->json(['clientSecret' => $paymentIntent->client_secret]);
+    }
+
+    public function clientSecret(Request $request, Order $order)
+    {
+        if ($order->user_id !== $request->user()->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        if ($order->status !== OrderStatus::Pending->value) {
+            return response()->json(['error' => 'Order is not pending'], 400);
+        }
+
+        if (!$order->stripe_payment_intent_id) {
+            return response()->json([
+                'message' => 'This order does not have a payment intent.'
+            ], 404);
+        }
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $paymentIntent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
+
+        return response()->json([
+            'clientSecret' => $paymentIntent->client_secret,
+        ]);
+    }
+
     public function cancel(Order $order)
     {
         if ($order->status !== OrderStatus::Pending->value) {
@@ -42,13 +106,11 @@ class OrderController extends Controller
         try {
             Stripe::setApiKey(config('services.stripe.secret'));
 
-            // Retrieve and cancel the PaymentIntent
             $paymentIntent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
             $paymentIntent->cancel();
 
-            // Mark order as cancellation pending (final state comes via webhook)
             $order->update(['status' => OrderStatus::CancellationPending]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Stripe cancellation failed. Please try again.',
                 'error' => $e->getMessage(),
