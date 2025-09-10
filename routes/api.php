@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\StripeWebhookController;
 
 Route::apiResource('/categories', CategoryController::class)
@@ -25,10 +26,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ->only(['store', 'update', 'destroy']);
         Route::get('/products/my-products', [ProductController::class, 'myProducts']);
     });
+    Route::post('/products/{product}/rating', [RatingController::class, 'storeProductRating']);
 
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/{user}/rating', [RatingController::class, 'storeUserRating']);
 
     Route::controller(CartController::class)->group(function () {
         Route::get('/cart', 'index');
@@ -55,6 +58,7 @@ Route::controller(ProductController::class)->group(function () {
     Route::get('/products/search', 'search');
     Route::get('/products/{product}', 'show');
 });
+
 
 Route::get('/user', function (Request $request) {
     return new UserResource($request->user());

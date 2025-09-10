@@ -19,9 +19,7 @@ class ProductController extends Controller
 
     public function latestProducts()
     {
-        return response()->json([
-            'products' => Product::latestTenResource(),
-        ]);
+        return ProductListResource::collection(Product::latest()->limit(10)->get());
     }
 
     public function myProducts()

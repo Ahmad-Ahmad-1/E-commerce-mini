@@ -17,7 +17,8 @@ class ProductListResource extends JsonResource
             'quantity' => $this->quantity,
             'lastModified' => date_format($this->updated_at, 'Y-m-d'),
             'image' => $this->getFirstMediaUrl('images'),
-            'categories' => CategoryResource::collection($this->categories)
+            'averageRating' => $this->summarizedRatings(),
+            'categories' => CategoryResource::collection($this->categories),
         ];
     }
 }

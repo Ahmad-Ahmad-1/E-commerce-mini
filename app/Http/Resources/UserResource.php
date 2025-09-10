@@ -19,6 +19,7 @@ class UserResource extends JsonResource
             'country' => $this->country,
             'city' => $this->city,
             'image' => $this->getFirstMediaUrl('profilePicture'),
+            'ratings' => $this->distributedRatings(),
             'latestProducts' => ProductResource::collection($this->products()->latest()->paginate(10)),
         ];
     }

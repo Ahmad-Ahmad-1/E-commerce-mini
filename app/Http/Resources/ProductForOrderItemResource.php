@@ -14,7 +14,8 @@ class ProductForOrderItemResource extends JsonResource
             'title' => $this->title,
             'price' => $this->price,
             'image' => $this->getFirstMediaUrl('images'),
-            'categories' => CategoryResource::collection($this->categories)
+            'averageRating' => $this->summarizedRatings(),
+            'categories' => CategoryResource::collection($this->categories),
         ];
     }
 }

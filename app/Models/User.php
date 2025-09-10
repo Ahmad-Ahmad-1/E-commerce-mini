@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Traits\HasRating;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,7 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
-    use HasFactory, Notifiable, HasApiTokens, HasRoles, InteractsWithMedia;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles, InteractsWithMedia, HasRating;
 
     protected $fillable = [
         'name',
@@ -53,5 +54,8 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         return $this->hasMany(Product::class);
     }
 
-    public function likes() {}
+    public function ratings()
+    {
+        return $this->morphMany(Rating::class, 'rateable');
+    }
 }

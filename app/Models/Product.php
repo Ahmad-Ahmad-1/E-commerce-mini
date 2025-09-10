@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use App\Http\Resources\ProductResource;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Http\Traits\HasRating;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model implements HasMedia
 {
 
-    use HasFactory, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, HasRating;
 
     protected $fillable = ['title', 'description', 'price', 'quantity'];
 
@@ -25,19 +25,13 @@ class Product extends Model implements HasMedia
         return $this->belongsToMany(Category::class);
     }
 
-    public function likes() {}
+    public function ratings()
+    {
+        return $this->morphMany(Rating::class, 'rateable');
+    }
 
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');
-    }
-
-    public static function latestTenResource()
-    {
-        return ProductResource::collection(
-            Product::with(
-                'categories'
-            )->latest()->limit(10)->get()
-        );
     }
 }
