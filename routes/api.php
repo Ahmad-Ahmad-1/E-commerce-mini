@@ -45,7 +45,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/orders/{order}', 'show');
         Route::patch('/orders/{order}', 'cancel');
         Route::post('/orders',  'store');
-        Route::get('/orders/{order}/client-secret',  'clientSecret');
+        Route::post('/orders/{order}/confirm',  'confirm');
         // Route::post('/orders/{order}/buy-again', 'buyAgain');
     });
 });

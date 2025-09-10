@@ -6,6 +6,7 @@ use Exception;
 use Stripe\Stripe;
 use App\Models\Order;
 use App\Enums\OrderStatus;
+use App\Http\Requests\ConfirmOrderRequest;
 use App\Http\Resources\OrderListResource;
 use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
@@ -37,6 +38,14 @@ class OrderController extends Controller
             return response()->json(['message' => 'Cart is empty'], 400);
         }
 
+        foreach ($cart->items as $item) {
+            if ($item->product->quantity < $item->quantity) {
+                return response()->json([
+                    'error' => "Product [{$item->product->title}] is out of stock"
+                ], 400);
+            }
+        }
+
         $amount = $cart->items->sum(fn($item) => $item->product->price * $item->quantity);
 
         Stripe::setApiKey(config('services.stripe.secret'));
@@ -63,10 +72,10 @@ class OrderController extends Controller
             }
         });
 
-        return response()->json(['clientSecret' => $paymentIntent->client_secret]);
+        return response()->json(['message' => 'A pending order is created successfully.']);
     }
 
-    public function clientSecret(Request $request, Order $order)
+    public function confirm(ConfirmOrderRequest $request, Order $order)
     {
         if ($order->user_id !== $request->user()->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
@@ -76,19 +85,43 @@ class OrderController extends Controller
             return response()->json(['error' => 'Order is not pending'], 400);
         }
 
-        if (!$order->stripe_payment_intent_id) {
-            return response()->json([
-                'message' => 'This order does not have a payment intent.'
-            ], 404);
+        foreach ($order->items as $item) {
+            if ($item->product->quantity < $item->quantity) {
+                return response()->json([
+                    'error' => "Product [{$item->product->title}] is out of stock"
+                ], 400);
+            }
         }
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $paymentIntent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
+        try {
+            $paymentIntent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
 
-        return response()->json([
-            'clientSecret' => $paymentIntent->client_secret,
-        ]);
+            $paymentIntent->confirm([
+                'payment_method' => $request->payment_method,
+            ]);
+
+            DB::transaction(function () use ($order) {
+
+                foreach ($order->items as $item) {
+                    $item->product->decrement('quantity', $item->quantity);
+                }
+
+                $order->update(['status' => OrderStatus::Paid->value]);
+            });
+
+            return response()->json([
+                'message' => 'Payment confirmed successfully',
+                'order' => new OrderResource($order),
+            ]);
+        } catch (Exception $e) {
+
+            return response()->json([
+                'message' => 'Payment confirmation failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function cancel(Order $order)
@@ -103,7 +136,7 @@ class OrderController extends Controller
             $paymentIntent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
             $paymentIntent->cancel();
 
-            $order->update(['status' => OrderStatus::CancellationPending]);
+            $order->update(['status' => OrderStatus::Cancelled->value]);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Stripe cancellation failed. Please try again.',
@@ -112,10 +145,39 @@ class OrderController extends Controller
         }
 
         return response()->json([
-            'message' => 'Your order should be cancelled soon.',
+            'message' => 'Order is cancelled successfully.',
             'order' => new OrderResource($order)
         ]);
     }
+
+    // in webhook env, we'll only update paymentIntent and order statuses here to intermediate statuses
+    // the actual work in webhook controller.
+    // Webhook based
+    // public function cancel(Order $order)
+    // {
+    //     if ($order->status !== OrderStatus::Pending->value) {
+    //         return response()->json(['message' => 'You can only cancel pending orders.'], 400);
+    //     }
+
+    //     try {
+    //         Stripe::setApiKey(config('services.stripe.secret'));
+
+    //         $paymentIntent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
+    //         $paymentIntent->cancel();
+
+    //         $order->update(['status' => OrderStatus::CancellationPending]);
+    //     } catch (Exception $e) {
+    //         return response()->json([
+    //             'message' => 'Stripe cancellation failed. Please try again.',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+
+    //     return response()->json([
+    //         'message' => 'Your order should be cancelled soon.',
+    //         'order' => new OrderResource($order)
+    //     ]);
+    // }
 
     // public function buyAgain(Order $order, Request $request)
     // {

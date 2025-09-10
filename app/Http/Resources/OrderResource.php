@@ -15,7 +15,6 @@ class OrderResource extends JsonResource
             'totalPrice' => $this->total,
             'status' => $this->status,
             'createdAt' => date_format($this->created_at, 'Y-m-d'),
-            'stripePaymentIntentId' => $this->stripe_payment_intent_id,
             'items' => OrderItemResource::collection($this->items),
         ];
     }
