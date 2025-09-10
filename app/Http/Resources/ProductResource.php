@@ -18,8 +18,10 @@ class ProductResource extends JsonResource
             'quantity' => $this->quantity,
             'lastModified' => date_format($this->updated_at, 'Y-m-d'),
             'image' => $this->getFirstMediaUrl('images'),
+            'myRating' => $this->ratings()->where('user_id', $request->user()->id)->first()->stars,
             'ratings' => $this->distributedRatings(),
             'categories' => CategoryResource::collection($this->categories),
+            'seller' => new UserForProductResource($this->user),
         ];
     }
 }

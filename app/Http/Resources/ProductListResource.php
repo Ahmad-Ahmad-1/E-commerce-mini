@@ -19,6 +19,7 @@ class ProductListResource extends JsonResource
             'image' => $this->getFirstMediaUrl('images'),
             'averageRating' => $this->summarizedRatings(),
             'categories' => CategoryResource::collection($this->categories),
+            'seller' => new UserForProductResource($this->user),
         ];
     }
 }
