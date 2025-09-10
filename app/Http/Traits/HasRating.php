@@ -2,8 +2,15 @@
 
 namespace App\Http\Traits;
 
+use App\Models\Rating;
+
 trait HasRating
 {
+    public function ratings()
+    {
+        return $this->morphMany(Rating::class, 'rateable');
+    }
+
     public function distributedRatings()
     {
         return [

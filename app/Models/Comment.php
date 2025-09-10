@@ -4,30 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * - This is a unified Comment model that works on all resources (Product, Post, Video...),
- *   If you only want to do comments on one model, like only on products (even if they are
- *   nested comments, then you don't need morph).
- * 
- *  - 
- */
-
 class Comment extends Model
 {
-    protected $fillable = ['user_id', 'body'];
-
-    public function commentable()
-    {
-        return $this->morphTo();
-    }
+    protected $fillable = ['user_id', 'content', 'parent_id'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    public function commentable()
+    {
+        return $this->morphTo();
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Comment::class, 'parent_id');
+    }
+
+    public function hasParent()
+    {
+        return $this->parent_id ? true : false;
+    }
+
     public function replies()
     {
-        return $this->morphMany(Comment::class, 'commentable');
+        return $this->hasMany(Comment::class, 'parent_id');
+    }
+
+    public function repliesCount() {
+        return $this->replies()->count();
     }
 }

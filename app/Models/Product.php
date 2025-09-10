@@ -25,13 +25,8 @@ class Product extends Model implements HasMedia
         return $this->belongsToMany(Category::class);
     }
 
-    public function ratings()
-    {
-        return $this->morphMany(Rating::class, 'rateable');
-    }
-
     public function comments()
     {
-        return $this->morphMany(Comment::class, 'commentable');
+        return $this->morphMany(Comment::class, 'commentable')->whereNull('parent_id');
     }
 }

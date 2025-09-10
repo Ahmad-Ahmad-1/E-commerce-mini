@@ -19,4 +19,6 @@ trait ManageRating
 
         return $rateable->distributedRatings();
     }
+
+    public function removeRating($user, $rateable) {}
 }

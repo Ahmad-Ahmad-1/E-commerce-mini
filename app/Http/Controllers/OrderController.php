@@ -56,7 +56,7 @@ class OrderController extends Controller
             'payment_method_types' => ['card'],
         ]);
 
-        DB::transaction(function () use ($cart, $request, $paymentIntent, $amount) {
+        $order = DB::transaction(function () use ($cart, $request, $paymentIntent, $amount) {
             $order = $request->user()->orders()->create([
                 'status' => 'pending',
                 'total'  => $amount,
@@ -70,9 +70,14 @@ class OrderController extends Controller
                     'price'      => $cartItem->product->price,
                 ]);
             }
+
+            return $order;
         });
 
-        return response()->json(['message' => 'A pending order is created successfully.']);
+        return response()->json([
+            'message' => 'A pending order is created successfully.',
+            'order' => new OrderResource($order)
+        ]);
     }
 
     public function confirm(ConfirmOrderRequest $request, Order $order)
@@ -109,6 +114,8 @@ class OrderController extends Controller
                 }
 
                 $order->update(['status' => OrderStatus::Paid->value]);
+
+                $order->user->cart?->items()->delete();
             });
 
             return response()->json([

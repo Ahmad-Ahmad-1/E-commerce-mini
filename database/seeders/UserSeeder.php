@@ -16,17 +16,26 @@ class UserSeeder extends Seeder
         ]);
         $user1->assignRole('Super Admin');
 
+        // Each category has a specific departement for it.
+
+        $user2 = User::factory()->create([
+            'name' => 'Seller 1',
+            'email' => 'seller1@example.com',
+            'password' => '12345678'
+        ]);
+        $user2->assignRole('Super Admin');
+
+        $user3 = User::factory()->create([
+            'name' => 'Seller 2',
+            'email' => 'seller2@example.com',
+            'password' => '12345678'
+        ]);
+        $user3->assignRole('Super Admin');
+
         User::factory()->create([
-            'name' => 'regular user 1',
+            'name' => 'regular user',
             'email' => 'regularuser1@example.com',
             'password' => '12345678'
         ]);
-
-        User::factory()->create([
-            'name' => 'regular user 2',
-            'email' => 'regularuser2@example.com',
-            'password' => '12345678'
-        ]);
-        
     }
 }

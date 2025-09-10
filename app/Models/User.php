@@ -53,9 +53,4 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     {
         return $this->hasMany(Product::class);
     }
-
-    public function ratings()
-    {
-        return $this->morphMany(Rating::class, 'rateable');
-    }
 }
