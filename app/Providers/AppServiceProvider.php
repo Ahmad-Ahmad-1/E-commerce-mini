@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 // use Laravel\Fortify\Contracts\LoginResponse;
 // use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Contracts\VerifyEmailResponse;
+use Laravel\Fortify\Fortify;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::preventLazyLoading();
         Model::automaticallyEagerLoadRelationships();
+        
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;
         });
@@ -51,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
                 return redirect('https://localhost:3000/verify-success');
             }
         });
+        
         ResetPassword::createUrlUsing(function ($notifiable, string $token) {
             return 'https://localhost:3000/reset-password?token=' . $token .
                 '&email=' . urlencode($notifiable->getEmailForPasswordReset());

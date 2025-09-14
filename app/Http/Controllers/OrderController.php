@@ -142,8 +142,8 @@ class OrderController extends Controller
 
             $paymentIntent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
             $paymentIntent->cancel();
-
             $order->update(['status' => OrderStatus::Cancelled->value]);
+            
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Stripe cancellation failed. Please try again.',

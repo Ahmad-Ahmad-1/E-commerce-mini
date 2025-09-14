@@ -25,14 +25,11 @@ class CartController extends Controller
 
     public function add(AddCartItemRequest $request)
     {
-        // Get validated input
         $productId = $request->validated('product_id');
         $quantity  = $request->validated('quantity');
 
-        // Find the product
         $product = Product::findOrFail($productId);
 
-        // Ensure enough stock
         $cart = Cart::firstOrCreate(['user_id' => $request->user()->id]);
         $cartItem = $cart->items()->firstOrNew(['product_id' => $productId]);
         $newQuantity = $cartItem->quantity + $quantity;
@@ -44,14 +41,11 @@ class CartController extends Controller
             ], 400);
         }
 
-        // Increment quantity
         $cartItem->quantity = $newQuantity;
         $cartItem->save();
 
-        // Load items with products
         $cart->load('items.product');
 
-        // Return clean JSON using CartItemResource
         return response()->json([
             'items' => CartItemResource::collection($cart->items),
         ]);
@@ -61,7 +55,6 @@ class CartController extends Controller
     {
         $item->delete();
 
-        // Reload cart with items + products
         $cart = $request->user()
             ->cart()
             ->with('items.product')
@@ -87,7 +80,6 @@ class CartController extends Controller
             'quantity' => $quantity,
         ]);
 
-        // Reload cart with items + products
         $cart = $item->cart()->with('items.product')->first();
 
         return response()->json([

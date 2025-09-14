@@ -14,18 +14,25 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return ProductListResource::collection(Product::latest()->paginate(10));
+        return response()->json([
+            'products' => ProductListResource::collection(Product::latest()->paginate(10))
+                ->response()->getData(true),
+        ]);
     }
 
     public function latestProducts()
     {
-        return ProductListResource::collection(Product::latest()->limit(10)->get());
+        return response()->json([
+            'products' => ProductListResource::collection(Product::latest()->limit(10)->get()),
+        ]);
     }
 
     public function myProducts()
     {
-        return ProductListResource::collection(request()->user()
-            ->products()->with('categories')->latest()->paginate(10));
+        return response()->json([
+            'products' => ProductListResource::collection(request()->user()
+                ->products()->latest()->paginate(10))->response()->getData(true),
+        ]);
     }
 
     public function store(StoreProductRequest $request)
@@ -45,14 +52,15 @@ class ProductController extends Controller
             ->toMediaCollection('images');
 
         return response()->json([
-            'message' => 'A product has been created successfully.'
+            'message' => 'A product has been created successfully.',
+            'product' => new ProductResource($product),
         ]);
     }
 
     public function show(Product $product)
     {
         return response()->json([
-            'product' => new ProductResource($product)
+            'product' => new ProductResource($product),
         ]);
     }
 
@@ -70,7 +78,8 @@ class ProductController extends Controller
         $product->update($request->safe()->all());
 
         return response()->json([
-            'message' => "Product has been updated successfully."
+            'message' => "Product has been updated successfully.",
+            'product' => new ProductResource($product),
         ]);
     }
 
@@ -101,6 +110,8 @@ class ProductController extends Controller
             ]);
         }
 
-        return ProductListResource::collection($products);
+        return response()->json([
+            'products' => ProductListResource::collection($products)->response()->getData(true),
+        ]);
     }
 }

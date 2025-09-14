@@ -21,8 +21,9 @@ class StripeWebhookController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
 
-        $paymentIntent = $event->data->object;
-        $stripePaymentIntentId = $paymentIntent->id;
+        $stripePaymentIntentId = $event->data->object->id;
+
+        // you don't need to eager load cart items.
         $order = Order::with('items.product', 'user.cart.items')
             ->where('stripe_payment_intent_id', $stripePaymentIntentId)
             ->first();

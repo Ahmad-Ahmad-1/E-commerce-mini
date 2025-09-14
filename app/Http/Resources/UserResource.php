@@ -20,7 +20,8 @@ class UserResource extends JsonResource
             'city' => $this->city,
             'image' => $this->getFirstMediaUrl('profilePicture'),
             'ratings' => $this->distributedRatings(),
-            'latestProducts' => ProductResource::collection($this->products()->latest()->paginate(10)),
+            'latestProducts' => ProductResource::collection($this->products()->latest()->limit(10)->get()),
+            // 'latestProducts' => ProductForUserResource::collection($this->products()->latest()->limit(10)->get()),
         ];
     }
 }
