@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Traits\HasRating;
 use App\Models\User;
 use App\Models\Product;
-use App\Http\Services\RatingService;
-use App\Http\Requests\StoreRatingRequest;
 use App\Http\Traits\ManageRating;
+use App\Http\Requests\StoreRatingRequest;
 
 class RatingController extends Controller
 {

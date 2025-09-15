@@ -30,11 +30,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/products/{product}/comments', [CommentController::class, 'storeProductComment']);
     Route::patch('/products/{product}/comments/{comment}', [CommentController::class, 'updateProductComment']);
     Route::delete('/products/{product}/comments/{comment}', [CommentController::class, 'destroyProductComment']);
-    Route::post('/products/{product}/rating', [RatingController::class, 'storeProductRating']);
+    Route::post('/products/{product}/ratings', [RatingController::class, 'storeProductRating']);
 
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-    Route::post('/users/{user}/rating', [RatingController::class, 'storeUserRating']);
+    Route::post('/users/{user}/ratings', [RatingController::class, 'storeUserRating']);
     // Route::post('/users/{user}/comments', [CommentController::class, 'storeUserComment']);
 
     Route::controller(CartController::class)->group(function () {

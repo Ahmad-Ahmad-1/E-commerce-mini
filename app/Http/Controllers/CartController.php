@@ -16,8 +16,6 @@ class CartController extends Controller
     {
         $cart = Cart::firstOrCreate(['user_id' => $request->user()->id]);
 
-        $cart->load('items.product');
-
         return response()->json([
             'items' => CartItemResource::collection($cart->items),
         ]);
@@ -43,8 +41,6 @@ class CartController extends Controller
 
         $cartItem->quantity = $newQuantity;
         $cartItem->save();
-
-        $cart->load('items.product');
 
         return response()->json([
             'items' => CartItemResource::collection($cart->items),

@@ -14,7 +14,7 @@ class StoreProductRequest extends FormRequest
             'category_name' => ['required', 'array'],
             'category_name.*' => ['required', 'string', 'between:2,25', 'exists:categories,category_name'],
             'price' => ['required'],
-            'quantity' => ['required'],
+            'quantity' => ['required', 'min:1'],
             'image' => ['required', 'image'],
         ];
     }
