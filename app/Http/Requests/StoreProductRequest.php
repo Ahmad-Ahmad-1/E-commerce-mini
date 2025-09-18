@@ -18,4 +18,11 @@ class StoreProductRequest extends FormRequest
             'image' => ['required', 'image'],
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'category_name.*.exists' => 'The category you are using does not exist.',
+        ];
+    }
 }

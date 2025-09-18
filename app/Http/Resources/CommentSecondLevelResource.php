@@ -11,11 +11,11 @@ class CommentSecondLevelResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'userId' => $this->user_id,
             'parentId' => $this->parent_id,
             'content' => $this->content,
             'createdAt' => date_format($this->created_at, 'Y-m-d'),
             'lastModify' => date_format($this->updated_at, 'Y-m-d'),
+            // 'commenter' => 
         ];
     }
 }

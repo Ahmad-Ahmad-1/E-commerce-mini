@@ -6,16 +6,17 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use App\Http\Resources\ProductListResource;
+use App\Http\Resources\ProductSummaryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+
 
 class ProductController extends Controller
 {
     public function index()
     {
         return response()->json([
-            'products' => ProductListResource::collection(Product::latest()->paginate(10))
+            'products' => ProductSummaryResource::collection(Product::latest()->paginate(10))
                 ->response()->getData(true),
         ]);
     }
@@ -23,14 +24,14 @@ class ProductController extends Controller
     public function latestProducts()
     {
         return response()->json([
-            'products' => ProductListResource::collection(Product::latest()->limit(10)->get()),
+            'products' => ProductSummaryResource::collection(Product::latest()->limit(10)->get()),
         ]);
     }
 
     public function myProducts()
     {
         return response()->json([
-            'products' => ProductListResource::collection(request()->user()
+            'products' => ProductSummaryResource::collection(request()->user()
                 ->products()->latest()->paginate(10))->response()->getData(true),
         ]);
     }
@@ -111,7 +112,7 @@ class ProductController extends Controller
         }
 
         return response()->json([
-            'products' => ProductListResource::collection($products)->response()->getData(true),
+            'products' => ProductSummaryResource::collection($products)->response()->getData(true),
         ]);
     }
 }

@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Http\Resources\UserResource;
-use App\Http\Resources\UserListResource;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdateUserRolesRequest;
+use App\Http\Resources\UserSummaryResource;
 
 class UserController extends Controller
 {
     public function index()
     {
-        return UserListResource::collection(User::latest()->paginate(10));
+        return UserSummaryResource::collection(User::latest()->paginate(10));
     }
 
     public function show(User $user)
@@ -42,7 +42,8 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'message' => 'Your profile has been updated successfully.'
+            'message' => 'Your profile has been updated successfully.',
+            'user' => new UserResource($user),
         ]);
     }
 
@@ -51,7 +52,8 @@ class UserController extends Controller
         $user->syncRoles($request->validated('role'));
 
         return response()->json([
-            'message' => 'The user is a Super Admin now.'
+            'message' => 'The user is a Super Admin now.',
+            'user' => $user,
         ]);
     }
 

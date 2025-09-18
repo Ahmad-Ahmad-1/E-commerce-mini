@@ -21,7 +21,7 @@ class ProductResource extends JsonResource
             'myRating' => $this->ratings()->where('user_id', auth()->id())->first()?->stars,
             'ratings' => $this->distributedRatings(),
             'categories' => CategoryResource::collection($this->categories),
-            // 'seller' => new UserForProductResource($this->user),
+            'seller' => new UserSummaryResource($this->user),
         ];
     }
 }

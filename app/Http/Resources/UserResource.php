@@ -14,14 +14,15 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'bio' => $this->bio,
-            'role' => $this->getRoleNames(),
             'phone' => $this->phone,
             'country' => $this->country,
             'city' => $this->city,
             'image' => $this->getFirstMediaUrl('profilePicture'),
+            'roles' => $this->getRoleNames(),
             'ratings' => $this->distributedRatings(),
-            'latestProducts' => ProductResource::collection($this->products()->latest()->limit(10)->get()),
-            // 'latestProducts' => ProductForUserResource::collection($this->products()->latest()->limit(10)->get()),
+            'latestProducts' => ProductSummaryResource::collection(
+                $this->products()->latest()->limit(10)->get()
+            ),
         ];
     }
 }

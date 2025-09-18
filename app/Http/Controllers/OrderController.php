@@ -7,8 +7,9 @@ use Stripe\Stripe;
 use App\Models\Order;
 use App\Enums\OrderStatus;
 use App\Http\Requests\ConfirmOrderRequest;
-use App\Http\Resources\OrderListResource;
+use App\Http\Resources\OrderItemResource;
 use App\Http\Resources\OrderResource;
+use App\Http\Resources\OrderSummaryResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Stripe\PaymentIntent;
@@ -17,17 +18,32 @@ class OrderController extends Controller
 {
     public function index()
     {
-        return OrderListResource::collection(Order::latest()->paginate(10));
+        return response()->json([
+            'orders' => OrderSummaryResource::collection(Order::latest()->paginate(10))
+                ->response()->getData(true),
+        ]);
     }
 
     public function myOrders(Request $request)
     {
-        return OrderListResource::collection($request->user()->orders()->latest()->paginate(10));
+        return response()->json([
+            'orders' => OrderSummaryResource::collection($request->user()->orders()
+            ->latest()->paginate(10))->response()->getData(true),
+        ]);
     }
 
     public function show(Order $order)
     {
-        return response()->json(new OrderResource($order));
+        return response()->json([
+            'order' => new OrderResource($order),
+        ]);
+    }
+
+    public function items(Order $order)
+    {
+        return response()->json([
+            'items' => OrderItemResource::collection($order->items),
+        ]);
     }
 
     public function store(Request $request)
@@ -143,7 +159,6 @@ class OrderController extends Controller
             $paymentIntent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
             $paymentIntent->cancel();
             $order->update(['status' => OrderStatus::Cancelled->value]);
-            
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Stripe cancellation failed. Please try again.',

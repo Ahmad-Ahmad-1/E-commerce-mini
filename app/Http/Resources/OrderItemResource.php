@@ -14,7 +14,7 @@ class OrderItemResource extends JsonResource
             'quantity' => $this->quantity,
             'unitPrice' => $this->price,
             'totalPrice' => $this->quantity * $this->price,
-            'product' => new ProductForOrderItemResource($this->product),
+            'product' => new ProductSummaryResource($this->product),
         ];
     }
 }
